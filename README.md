@@ -1,4 +1,4 @@
-
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -26,7 +26,6 @@
       color:var(--text);
       min-height:100vh;
     }
-    a{color:inherit}
     .container{
       max-width: 980px;
       margin: 0 auto;
@@ -212,6 +211,11 @@
       background: rgba(34,197,94,.12);
       color: #bbf7d0;
     }
+    .badge.type{
+      border-color: rgba(124,92,255,.55);
+      background: rgba(124,92,255,.12);
+      color: #ddd6fe;
+    }
     .leftcol{
       width: 54px;
       flex: 0 0 54px;
@@ -393,12 +397,12 @@
 
     <div class="header">
       <div>
-        <h2>Available Classes</h2>
-        <p>Scroll, find a class, hit <b>Register</b>, then view its <b>time</b> and <b>Singapore location</b>.</p>
+        <h2>Class List</h2>
+        <p>Search + filter, then hit <b>Register</b> to view <b>time</b>, <b>location</b>, and <b>class type</b>.</p>
       </div>
 
       <div class="controls">
-        <input class="input" id="searchInput" placeholder="Search classes (e.g., yoga, python, volleyball)..." />
+        <input class="input" id="searchInput" placeholder="Search classes (e.g., chemistry, economics, art)..." />
         <div class="chips" id="chips"></div>
       </div>
     </div>
@@ -418,7 +422,10 @@
           <div class="panel">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
               <div>
-                <div class="badge" id="classCategoryBadge">Category</div>
+                <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                  <span class="badge" id="classCategoryBadge">Category</span>
+                  <span class="badge type" id="classTypeBadge">Type</span>
+                </div>
                 <h2 id="classTitle" style="margin:10px 0 0; font-size:22px; font-weight:950;">Title</h2>
                 <p id="classDesc" class="desc" style="margin-top:8px;">Description</p>
               </div>
@@ -434,6 +441,7 @@
               <div>Where</div><div id="classWhere">—</div>
               <div>Address</div><div id="classAddress">—</div>
               <div>Nearest MRT</div><div id="classMRT">—</div>
+              <div>Class type</div><div id="classType">—</div>
             </div>
             <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
               <button class="btn" id="mapBtn">Map (demo)</button>
@@ -489,94 +497,164 @@
 
   <script>
     // -------------------------
-    // Demo data (Singapore-based)
+    // Demo data: practical high-school schedule style (with electives)
+    // classType: "Lecture-based" | "Project-based" | "Mixed"
     // -------------------------
     const classes = [
       {
-        id: "vb-101",
-        title: "Beginner Volleyball",
-        category: "Sports",
+        id: "eng-11",
+        title: "English Language Arts 11",
+        category: "Core",
+        classType: "Lecture-based",
         durationMins: 60,
-        description: "Learn basic serves, passes, and positioning with simple drills and guided practice.",
-        when: "Sat 10:00–11:00",
-        where: "OCBC Arena, Singapore Sports Hub",
-        address: "5 Stadium Dr, Singapore 397631",
-        mrt: "Stadium (CC6)",
-        icon: "🏐",
-      },
-      {
-        id: "py-101",
-        title: "Intro to Python (Teens)",
-        category: "Coding",
-        durationMins: 90,
-        description: "Start programming with Python basics: variables, loops, and small fun projects.",
-        when: "Wed 17:30–19:00",
-        where: "National Library Building",
-        address: "100 Victoria St, Singapore 188064",
-        mrt: "Bugis (EW12/DT14)",
-        icon: "🐍",
-      },
-      {
-        id: "yo-201",
-        title: "Yoga Flow (All Levels)",
-        category: "Fitness",
-        durationMins: 60,
-        description: "A calm flow focused on mobility, breathing, and full-body balance.",
-        when: "Tue 19:00–20:00",
-        where: "Bishan–Ang Mo Kio Park (Activity Lawn)",
-        address: "1384 Ang Mo Kio Ave 1, Singapore 569931",
-        mrt: "Bishan (NS17/CC15)",
-        icon: "🧘",
-      },
-      {
-        id: "gt-110",
-        title: "Beginner Guitar Jam",
-        category: "Arts",
-        durationMins: 60,
-        description: "Learn basic chords, strumming, and play a simple song together.",
-        when: "Sun 14:00–15:00",
-        where: "Esplanade (Community Room)",
-        address: "1 Esplanade Dr, Singapore 038981",
-        mrt: "Esplanade (CC3) / City Hall (NS25/EW13)",
-        icon: "🎸",
-      },
-      {
-        id: "cp-150",
-        title: "Cooking: Simple SG Dishes",
-        category: "Lifestyle",
-        durationMins: 75,
-        description: "Hands-on cooking demo featuring easy local favorites and kitchen basics.",
-        when: "Fri 18:30–19:45",
-        where: "Community Club (Demo Kitchen)",
-        address: "Demo address: 1 Example Rd, Singapore 000001",
+        description: "Reading strategies, essay writing, and discussion-based analysis of texts.",
+        when: "Mon 08:00–09:00",
+        where: "School Campus (Block B, Level 3)",
+        address: "Demo address: 1 School Way, Singapore 000001",
         mrt: "Nearest MRT (demo)",
-        icon: "🍳",
+        icon: "📚",
       },
       {
-        id: "ph-120",
-        title: "Photography Walk (City)",
-        category: "Arts",
+        id: "math-adv",
+        title: "Additional Mathematics",
+        category: "Core",
+        classType: "Mixed",
+        durationMins: 60,
+        description: "Functions, calculus fundamentals, and problem-solving practice with weekly quizzes.",
+        when: "Tue 09:30–10:30",
+        where: "School Campus (Block A, Level 2)",
+        address: "Demo address: 1 School Way, Singapore 000001",
+        mrt: "Nearest MRT (demo)",
+        icon: "➗",
+      },
+      {
+        id: "chem",
+        title: "Chemistry",
+        category: "Science",
+        classType: "Mixed",
+        durationMins: 75,
+        description: "Core concepts + practical labs (acid-base, kinetics, and basic titrations).",
+        when: "Wed 10:45–12:00",
+        where: "Science Lab 2 (School Campus)",
+        address: "Demo address: 1 School Way, Singapore 000001",
+        mrt: "Nearest MRT (demo)",
+        icon: "🧪",
+      },
+      {
+        id: "bio",
+        title: "Biology",
+        category: "Science",
+        classType: "Mixed",
+        durationMins: 75,
+        description: "Cell processes, genetics, and ecology with structured lab write-ups.",
+        when: "Thu 08:00–09:15",
+        where: "Science Lab 1 (School Campus)",
+        address: "Demo address: 1 School Way, Singapore 000001",
+        mrt: "Nearest MRT (demo)",
+        icon: "🧬",
+      },
+      {
+        id: "econ",
+        title: "Economics",
+        category: "Humanities",
+        classType: "Lecture-based",
+        durationMins: 60,
+        description: "Micro + macro foundations, case studies, and evaluation of real-world policies.",
+        when: "Fri 09:30–10:30",
+        where: "School Campus (Seminar Room 4)",
+        address: "Demo address: 1 School Way, Singapore 000001",
+        mrt: "Nearest MRT (demo)",
+        icon: "📈",
+      },
+      {
+        id: "cs",
+        title: "Computer Science (Intro)",
+        category: "Elective",
+        classType: "Project-based",
         durationMins: 90,
-        description: "Practice composition and lighting with a guided photo walk around town.",
-        when: "Sat 16:00–17:30",
-        where: "Bras Basah Complex (Meet-up Point)",
-        address: "231 Bain St, Singapore 180231",
-        mrt: "Bras Basah (CC2) / Bugis (EW12/DT14)",
-        icon: "📷",
+        description: "Build small apps and games while learning logic, variables, and debugging.",
+        when: "Tue 15:00–16:30",
+        where: "Computer Lab (School Campus)",
+        address: "Demo address: 1 School Way, Singapore 000001",
+        mrt: "Nearest MRT (demo)",
+        icon: "💻",
+      },
+      {
+        id: "design",
+        title: "Design & Technology",
+        category: "Elective",
+        classType: "Project-based",
+        durationMins: 90,
+        description: "Prototype design challenges (CAD, basic fabrication, and testing).",
+        when: "Thu 15:00–16:30",
+        where: "Design Studio (School Campus)",
+        address: "Demo address: 1 School Way, Singapore 000001",
+        mrt: "Nearest MRT (demo)",
+        icon: "🛠️",
+      },
+      {
+        id: "art",
+        title: "Visual Art",
+        category: "Elective",
+        classType: "Project-based",
+        durationMins: 75,
+        description: "Studio projects (drawing, painting, and mixed media) with critique sessions.",
+        when: "Mon 14:00–15:15",
+        where: "Art Room (School Campus)",
+        address: "Demo address: 1 School Way, Singapore 000001",
+        mrt: "Nearest MRT (demo)",
+        icon: "🎨",
+      },
+      {
+        id: "band",
+        title: "Concert Band",
+        category: "CCA / Elective",
+        classType: "Mixed",
+        durationMins: 90,
+        description: "Sectionals + full ensemble rehearsals focused on performance readiness.",
+        when: "Wed 15:00–16:30",
+        where: "Music Room (School Campus)",
+        address: "Demo address: 1 School Way, Singapore 000001",
+        mrt: "Nearest MRT (demo)",
+        icon: "🎼",
+      },
+      {
+        id: "pe",
+        title: "Physical Education",
+        category: "Core",
+        classType: "Project-based",
+        durationMins: 60,
+        description: "Skill practice + fitness tracking (performance tasks and reflection logs).",
+        when: "Fri 14:00–15:00",
+        where: "School Sports Hall",
+        address: "Demo address: 1 School Way, Singapore 000001",
+        mrt: "Nearest MRT (demo)",
+        icon: "🏃",
+      },
+      {
+        id: "media",
+        title: "Media Studies",
+        category: "Elective",
+        classType: "Mixed",
+        durationMins: 75,
+        description: "Analyze media texts and create short-form content with peer feedback.",
+        when: "Tue 13:00–14:15",
+        where: "Seminar Room 2 (School Campus)",
+        address: "Demo address: 1 School Way, Singapore 000001",
+        mrt: "Nearest MRT (demo)",
+        icon: "🎬",
       }
     ];
 
     // In-memory session (NO saving)
-    const session = {
-      isLoggedIn: false,
-      displayName: "Guest"
-    };
+    const session = { isLoggedIn: false, displayName: "Guest" };
 
-    // In-memory registrations (optional demo feel)
+    // In-memory registrations (demo feel)
     const registeredIds = new Set();
 
     const state = {
       selectedCategory: "All",
+      selectedType: "All", // NEW: filters by classType
       search: "",
       activeClass: null
     };
@@ -597,8 +675,8 @@
     const confirmRegisterBtn = document.getElementById("confirmRegisterBtn");
     const registerNote = document.getElementById("registerNote");
 
-    const classModalTitle = document.getElementById("classModalTitle");
     const classCategoryBadge = document.getElementById("classCategoryBadge");
+    const classTypeBadge = document.getElementById("classTypeBadge");
     const classTitle = document.getElementById("classTitle");
     const classDesc = document.getElementById("classDesc");
     const classIcon = document.getElementById("classIcon");
@@ -607,6 +685,7 @@
     const classWhere = document.getElementById("classWhere");
     const classAddress = document.getElementById("classAddress");
     const classMRT = document.getElementById("classMRT");
+    const classType = document.getElementById("classType");
     const mapBtn = document.getElementById("mapBtn");
     const calendarBtn = document.getElementById("calendarBtn");
 
@@ -631,12 +710,8 @@
       showToast._t = setTimeout(() => toast.classList.remove("show"), 3500);
     }
 
-    function openOverlay(el){
-      el.classList.add("show");
-    }
-    function closeOverlay(el){
-      el.classList.remove("show");
-    }
+    function openOverlay(el){ el.classList.add("show"); }
+    function closeOverlay(el){ el.classList.remove("show"); }
 
     function updateTopRight(){
       greeting.textContent = `Welcome, ${session.displayName}`;
@@ -649,33 +724,68 @@
       }
     }
 
+    // NEW: combined chips for Category + Type
     function getCategories(){
       const set = new Set(classes.map(c => c.category));
       return ["All", ...Array.from(set).sort()];
     }
+    function getTypes(){
+      return ["All", "Project-based", "Lecture-based", "Mixed"];
+    }
 
     function renderChips(){
       chipsEl.innerHTML = "";
-      const cats = getCategories();
-      cats.forEach(cat => {
+
+      // Row 1: Category chips
+      const catWrap = document.createElement("div");
+      catWrap.className = "chips";
+      catWrap.style.width = "100%";
+
+      getCategories().forEach(cat => {
         const chip = document.createElement("div");
         chip.className = "chip" + (state.selectedCategory === cat ? " active" : "");
         chip.textContent = cat;
+        chip.title = "Filter by category";
         chip.addEventListener("click", () => {
           state.selectedCategory = cat;
           renderChips();
           renderGrid();
         });
-        chipsEl.appendChild(chip);
+        catWrap.appendChild(chip);
       });
+
+      // Row 2: Type chips
+      const typeWrap = document.createElement("div");
+      typeWrap.className = "chips";
+      typeWrap.style.width = "100%";
+      typeWrap.style.marginTop = "8px";
+
+      getTypes().forEach(t => {
+        const chip = document.createElement("div");
+        chip.className = "chip" + (state.selectedType === t ? " active" : "");
+        chip.textContent = t;
+        chip.title = "Filter by class type";
+        chip.addEventListener("click", () => {
+          state.selectedType = t;
+          renderChips();
+          renderGrid();
+        });
+        typeWrap.appendChild(chip);
+      });
+
+      chipsEl.appendChild(catWrap);
+      chipsEl.appendChild(typeWrap);
     }
 
     function matchesFilters(c){
       const catOk = state.selectedCategory === "All" || c.category === state.selectedCategory;
+      const typeOk = state.selectedType === "All" || c.classType === state.selectedType;
+
       const q = state.search.trim().toLowerCase();
-      const text = (c.title + " " + c.category + " " + c.description + " " + c.where).toLowerCase();
+      const text = (c.title + " " + c.category + " " + c.classType + " " + c.description + " " + c.where).toLowerCase();
       const searchOk = q === "" || text.includes(q);
-      return catOk && searchOk;
+
+      return catOk && typeOk && searchOk;
     }
 
     function renderGrid(){
@@ -689,7 +799,7 @@
         empty.innerHTML = `
           <div class="content">
             <h3>No classes found</h3>
-            <p class="desc">Try a different search term or category.</p>
+            <p class="desc">Try a different search term, category, or class type filter.</p>
           </div>
         `;
         classGrid.appendChild(empty);
@@ -711,6 +821,7 @@
                 <h3 title="${c.title}">${c.title}</h3>
                 <div class="meta">
                   <span class="badge">${c.category}</span>
+                  <span class="badge type">🧩 ${c.classType}</span>
                   <span class="badge">⏱ ${c.durationMins} min</span>
                   <span class="badge">🗓 ${c.when}</span>
                   ${isReg ? `<span class="badge green">✅ Registered</span>` : ``}
@@ -725,12 +836,8 @@
           </div>
         `;
 
-        // Click handlers
-        const registerBtn = card.querySelector('[data-action="register"]');
-        const detailsBtn = card.querySelector('[data-action="details"]');
-
-        registerBtn.addEventListener("click", () => openClassModal(c));
-        detailsBtn.addEventListener("click", () => openClassModal(c));
+        card.querySelector('[data-action="register"]').addEventListener("click", () => openClassModal(c));
+        card.querySelector('[data-action="details"]').addEventListener("click", () => openClassModal(c));
 
         classGrid.appendChild(card);
       });
@@ -739,8 +846,9 @@
     function openClassModal(c){
       state.activeClass = c;
 
-      classModalTitle.textContent = "Register";
       classCategoryBadge.textContent = c.category;
+      classTypeBadge.textContent = c.classType;
+
       classTitle.textContent = c.title;
       classDesc.textContent = c.description;
       classIcon.textContent = c.icon;
@@ -750,6 +858,9 @@
       classWhere.textContent = c.where;
       classAddress.textContent = c.address;
       classMRT.textContent = c.mrt;
+
+      // NEW: show in session info
+      classType.textContent = c.classType;
 
       const isReg = registeredIds.has(c.id);
 
@@ -771,9 +882,7 @@
       openOverlay(classModal);
     }
 
-    // -------------------------
     // Events
-    // -------------------------
     searchInput.addEventListener("input", (e) => {
       state.search = e.target.value || "";
       renderGrid();
@@ -790,7 +899,6 @@
       session.displayName = "Guest";
       updateTopRight();
       showToast("Logged out", "Back to Guest (nothing saved).", "👋");
-      // Update modal note if it is open
       if(classModal.classList.contains("show") && state.activeClass){
         openClassModal(state.activeClass);
       }
@@ -809,7 +917,6 @@
       closeOverlay(loginModal);
       showToast("Logged in", `Welcome, ${session.displayName} (demo only).`, "✅");
 
-      // Update modal note if it is open
       if(classModal.classList.contains("show") && state.activeClass){
         openClassModal(state.activeClass);
       }
@@ -820,14 +927,12 @@
     closeClassModal.addEventListener("click", () => closeOverlay(classModal));
     detailsOnlyBtn.addEventListener("click", () => closeOverlay(classModal));
 
-    // Overlay click-to-close
     [classModal, loginModal].forEach(overlay => {
       overlay.addEventListener("click", (e) => {
         if(e.target === overlay) closeOverlay(overlay);
       });
     });
 
-    // ESC to close
     document.addEventListener("keydown", (e) => {
       if(e.key === "Escape"){
         closeOverlay(classModal);
@@ -852,7 +957,6 @@
       registeredIds.add(c.id);
       showToast("Registered!", `See you ${c.when} @ ${c.where}.`, "🎉");
 
-      // Refresh modal + list
       openClassModal(c);
       renderGrid();
     });
@@ -860,15 +964,12 @@
     mapBtn.addEventListener("click", () => {
       const c = state.activeClass;
       if(!c) return;
-      // Demo: open Google Maps search in new tab (still no saved data)
       const q = encodeURIComponent(`${c.where} ${c.address}`);
       window.open(`https://www.google.com/maps/search/?api=1&query=${q}`, "_blank");
       showToast("Map opened", "Opened location in a new tab (demo).", "🗺️");
     });
 
     calendarBtn.addEventListener("click", () => {
-      const c = state.activeClass;
-      if(!c) return;
       showToast("Calendar (demo)", "This button is a placeholder for calendar integration.", "📅");
     });
 
